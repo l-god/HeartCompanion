@@ -1,15 +1,9 @@
 {
   "mcpServers": {
-    "amap-maps": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@amap/amap-maps-mcp-server"
-      ],
-      "env": {
-        "AMAP_MAPS_API_KEY": "5ba4d3d00e7501445e650b14c401c123"
-      }
+    "type": "sse",
+    "url": "https://dashscope.aliyuncs.com/api/v1/mcps/amap-maps/sse",
+    "headers": {
+      "Authorization": "Bearer sk-80326a6dd48f443b83e4461950ca4db5"
     }
   }
 }
-

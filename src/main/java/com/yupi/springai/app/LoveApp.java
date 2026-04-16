@@ -144,7 +144,7 @@ public class LoveApp {
         log.info("content: {}", content);
         return content;
     }
-    //利用mcp搞得地图服务
+    //利用mcp搞得地图服务,搞得地图api炸了，现在配置的是代码解释器
     @Resource
     private ToolCallbackProvider toolCallbackProvider;
 
