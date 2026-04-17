@@ -35,6 +35,26 @@ public class AiController {
         return loveApp.doChatByStream(message, chatId);
     }
 
+    @GetMapping("/love_app/chat/rag")
+    public String doChatWithLoveAppRag(String message, String chatId) {
+        return loveApp.doChatWithRag(message, chatId);
+    }
+
+    @GetMapping("/love_app/chat/tools")
+    public String doChatWithLoveAppTools(String message, String chatId) {
+        return loveApp.doChatWithTools(message, chatId);
+    }
+
+    @GetMapping("/love_app/chat/mcp")
+    public String doChatWithLoveAppMcp(String message, String chatId) {
+        return loveApp.doChatWithMcp(message, chatId);
+    }
+
+    @GetMapping("/love_app/report")
+    public Object doChatWithLoveAppReport(String message, String chatId) {
+        return loveApp.doChatWithReport(message, chatId);
+    }
+
     /**
      * 流式调用 Manus 超级智能体
      *
@@ -45,6 +65,31 @@ public class AiController {
     public SseEmitter doChatWithManus(String message) {
         YuManus yuManus = new YuManus(allTools, dashscopeChatModel);
         return yuManus.runStream(message);
+    }
+
+    @GetMapping("/manus/chat/sync")
+    public String doChatWithManusSync(String message, String chatId) {
+        return loveApp.doChat(message, chatId);
+    }
+
+    @GetMapping("/manus/chat/rag")
+    public String doChatWithManusRag(String message, String chatId) {
+        return loveApp.doChatWithRag(message, chatId);
+    }
+
+    @GetMapping("/manus/chat/tools")
+    public String doChatWithManusTools(String message, String chatId) {
+        return loveApp.doChatWithTools(message, chatId);
+    }
+
+    @GetMapping("/manus/chat/mcp")
+    public String doChatWithManusMcp(String message, String chatId) {
+        return loveApp.doChatWithMcp(message, chatId);
+    }
+
+    @GetMapping("/manus/report")
+    public Object doChatWithManusReport(String message, String chatId) {
+        return loveApp.doChatWithReport(message, chatId);
     }
 
 

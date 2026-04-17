@@ -45,6 +45,56 @@ const heartDecorations = Array.from({ length: 7 }, (_, index) => ({
   size: `${14 + Math.round(Math.random() * 10)}px`,
 }));
 
+function escapeHtml(text) {
+  return text
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function toSafeLink(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.href;
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+function renderMessageContent(content) {
+  const raw = String(content || "");
+  let html = escapeHtml(raw);
+
+  html = html.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    (match, text, url) => {
+      const safeUrl = toSafeLink(url);
+      if (!safeUrl) {
+        return match;
+      }
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
+    }
+  );
+
+  html = html.replace(
+    /(^|[\s(])((https?:\/\/)[^\s<]+)/g,
+    (match, prefix, url) => {
+      const safeUrl = toSafeLink(url);
+      if (!safeUrl) {
+        return match;
+      }
+      return `${prefix}<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+    }
+  );
+
+  return html.replaceAll("\n", "<br>");
+}
+
 function handleSend() {
   const value = inputValue.value.trim();
   if (!value || props.loading) {
@@ -129,9 +179,7 @@ watch(
           msg.kind ? `message-${msg.kind}` : '',
         ]"
       >
-        <div class="message-bubble">
-          {{ msg.content }}
-        </div>
+        <div class="message-bubble" v-html="renderMessageContent(msg.content)" />
       </div>
     </div>
 

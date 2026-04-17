@@ -2,15 +2,36 @@
 import { onBeforeUnmount, ref } from "vue";
 import { useRouter } from "vue-router";
 import ChatPanel from "../components/ChatPanel.vue";
-import { buildManusSseUrl } from "../api/chat";
+import {
+  buildManusSseUrl,
+  chatWithManusMcp,
+  chatWithManusRag,
+  chatWithManusReport,
+  chatWithManusSync,
+  chatWithManusTools,
+} from "../api/chat";
 
 const router = useRouter();
 const loading = ref(false);
 const eventSourceRef = ref(null);
 const messages = ref([]);
+const chatId = ref(createChatId());
+const currentMode = ref("agent");
+const manusModes = [
+  { key: "agent", label: "智能体执行" },
+  { key: "sync", label: "普通对话" },
+  { key: "rag", label: "知识增强" },
+  { key: "tools", label: "工具助手" },
+  { key: "mcp", label: "MCP 助手" },
+  { key: "report", label: "报告生成" },
+];
 let lineBuffer = "";
 let thinkingMessageRef = null;
 let finalMessageRef = null;
+
+function createChatId() {
+  return `manus-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
 
 function closeConnection() {
   if (eventSourceRef.value) {
@@ -75,6 +96,14 @@ function handleStreamLine(line) {
 }
 
 function sendMessage(message) {
+  if (currentMode.value !== "agent") {
+    sendBySyncMode(message);
+    return;
+  }
+  sendByAgentMode(message);
+}
+
+function sendByAgentMode(message) {
   closeConnection();
   resetStreamState();
   appendUserMessage(message);
@@ -112,6 +141,54 @@ function sendMessage(message) {
   };
 }
 
+function formatReport(reportData) {
+  if (!reportData || typeof reportData !== "object") {
+    return "报告生成失败，请稍后重试。";
+  }
+  const title = reportData.title || "报告";
+  const suggestions = Array.isArray(reportData.suggestions)
+    ? reportData.suggestions
+    : [];
+  const lines = suggestions.map((item, index) => `${index + 1}. ${item}`);
+  return `${title}\n\n${lines.join("\n")}`;
+}
+
+async function sendBySyncMode(message) {
+  closeConnection();
+  resetStreamState();
+  appendUserMessage(message);
+  loading.value = true;
+  try {
+    let result;
+    if (currentMode.value === "sync") {
+      result = await chatWithManusSync(message, chatId.value);
+      appendAiMessage("final", result.data || "暂无响应");
+    } else if (currentMode.value === "rag") {
+      result = await chatWithManusRag(message, chatId.value);
+      appendAiMessage("final", result.data || "暂无响应");
+    } else if (currentMode.value === "tools") {
+      result = await chatWithManusTools(message, chatId.value);
+      appendAiMessage("final", result.data || "暂无响应");
+    } else if (currentMode.value === "mcp") {
+      result = await chatWithManusMcp(message, chatId.value);
+      appendAiMessage("final", result.data || "暂无响应");
+    } else if (currentMode.value === "report") {
+      result = await chatWithManusReport(message, chatId.value);
+      appendAiMessage("final", formatReport(result.data));
+    }
+  } catch (error) {
+    appendAiMessage("final", "请求失败，请检查后端服务是否已启动。");
+  } finally {
+    loading.value = false;
+  }
+}
+
+function switchMode(modeKey) {
+  currentMode.value = modeKey;
+  closeConnection();
+  resetStreamState();
+}
+
 onBeforeUnmount(() => {
   closeConnection();
   resetStreamState();
@@ -122,6 +199,17 @@ onBeforeUnmount(() => {
   <div>
     <div class="page-top-bar">
       <button @click="router.push('/')">返回首页</button>
+    </div>
+    <div class="mode-switch-bar mode-switch-bar-cyber">
+      <button
+        v-for="mode in manusModes"
+        :key="mode.key"
+        class="mode-switch-btn mode-switch-btn-cyber"
+        :class="{ 'mode-switch-btn-active': currentMode === mode.key }"
+        @click="switchMode(mode.key)"
+      >
+        {{ mode.label }}
+      </button>
     </div>
     <ChatPanel
       title="AI 超级智能体"

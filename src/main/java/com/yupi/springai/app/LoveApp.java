@@ -106,7 +106,7 @@ public class LoveApp {
 
 
     //生成恋爱报告
-    record LoveReport(String title, List<String> suggestions) { }
+    public record LoveReport(String title, List<String> suggestions) { }
 
     public LoveReport doChatWithReport(String message, String chatId) {
 
