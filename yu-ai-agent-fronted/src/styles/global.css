@@ -1,0 +1,135 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.home-page {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 24px;
+  text-align: center;
+}
+
+.home-actions {
+  display: flex;
+  gap: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.page-top-bar {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px 16px 0;
+}
+
+.chat-page {
+  max-width: 960px;
+  margin: 0 auto;
+  height: calc(100vh - 60px);
+  padding: 12px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-header {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.chat-header h2 {
+  margin: 0 0 4px;
+}
+
+.chat-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.message-item {
+  display: flex;
+  margin-bottom: 14px;
+}
+
+.message-ai {
+  justify-content: flex-start;
+}
+
+.message-user {
+  justify-content: flex-end;
+}
+
+.message-bubble {
+  max-width: 70%;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+
+.message-ai .message-bubble {
+  background: #e5edff;
+}
+
+.message-user .message-bubble {
+  background: #2563eb;
+  color: #fff;
+}
+
+.input-panel {
+  display: flex;
+  gap: 10px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+}
+
+.input-panel input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 14px;
+}
