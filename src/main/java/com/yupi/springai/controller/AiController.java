@@ -41,7 +41,7 @@ public class AiController {
      * @param message
      * @return
      */
-    @GetMapping("/manus/chat")
+    @GetMapping(value = "/manus/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter doChatWithManus(String message) {
         YuManus yuManus = new YuManus(allTools, dashscopeChatModel);
         return yuManus.runStream(message);

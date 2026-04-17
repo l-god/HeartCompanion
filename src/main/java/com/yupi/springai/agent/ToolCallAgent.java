@@ -39,6 +39,7 @@ public class ToolCallAgent extends ReActAgent {
 
     // 禁用内置的工具调用机制，自己维护上下文
     private final ChatOptions chatOptions;
+    private String finalAnswer = "";
 
     public ToolCallAgent(ToolCallback[] availableTools) {
         super();
@@ -87,6 +88,7 @@ public class ToolCallAgent extends ReActAgent {
             if (toolCallList.isEmpty()) {
                 // 只有不调用工具时，才记录助手消息
                 getMessageList().add(assistantMessage);
+                this.finalAnswer = result;
                 return false;
             } else {
                 // 需要调用工具时，无需记录助手消息，因为调用工具时会自动记录
@@ -129,6 +131,21 @@ public class ToolCallAgent extends ReActAgent {
         log.info(results);
         return results;
 
+    }
+
+    @Override
+    public String step() {
+        try {
+            boolean shouldAct = think();
+            if (!shouldAct) {
+                setState(AgentState.FINISHED);
+                return finalAnswer == null || finalAnswer.isEmpty() ? "思考完成" : finalAnswer;
+            }
+            return act();
+        } catch (Exception e) {
+            log.error("步骤执行失败", e);
+            return "步骤执行失败: " + e.getMessage();
+        }
     }
 
 

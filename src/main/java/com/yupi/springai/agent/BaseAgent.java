@@ -22,6 +22,7 @@ import java.util.concurrent.CompletableFuture;
 @Data
 @Slf4j
 public abstract class BaseAgent {
+    private static final long STREAM_CHAR_DELAY_MS = 20L;
 
     // 核心属性
     private String name;
@@ -97,7 +98,7 @@ public abstract class BaseAgent {
      */
     public SseEmitter runStream(String userPrompt) {
         // 创建SseEmitter，设置较长的超时时间
-        SseEmitter emitter = new SseEmitter(300000L); // 5分钟超时
+        SseEmitter emitter = new SseEmitter(100000L); // 5分钟超时
 
         // 使用线程异步处理，避免阻塞主线程
         CompletableFuture.runAsync(() -> {
@@ -120,21 +121,21 @@ public abstract class BaseAgent {
 
                 try {
                     for (int i = 0; i < maxSteps && state != AgentState.FINISHED; i++) {
-                        int stepNumber = i + 1;
-                        currentStep = stepNumber;
-                        log.info("Executing step " + stepNumber + "/" + maxSteps);
+                        currentStep = i + 1;
+                        log.info("Executing step " + currentStep + "/" + maxSteps);
 
                         // 单步执行
                         String stepResult = step();
-                        String result = "Step " + stepNumber + ": " + stepResult;
-
-                        // 发送每一步的结果
-                        emitter.send(result);
+                        if (state == AgentState.FINISHED) {
+                            sendByChars(emitter, "FINAL:" + stepResult + "\n");
+                            break;
+                        }
+                        sendByChars(emitter, "THINK:" + stepResult + "\n");
                     }
                     // 检查是否超出步骤限制
-                    if (currentStep >= maxSteps) {
+                    if (currentStep >= maxSteps && state != AgentState.FINISHED) {
                         state = AgentState.FINISHED;
-                        emitter.send("执行结束: 达到最大步骤 (" + maxSteps + ")");
+                        sendByChars(emitter, "FINAL:执行结束: 达到最大步骤 (" + maxSteps + ")\n");
                     }
                     // 正常完成
                     emitter.complete();
@@ -142,7 +143,7 @@ public abstract class BaseAgent {
                     state = AgentState.ERROR;
                     log.error("执行智能体失败", e);
                     try {
-                        emitter.send("执行错误: " + e.getMessage());
+                        sendByChars(emitter, "FINAL:执行错误: " + e.getMessage() + "\n");
                         emitter.complete();
                     } catch (Exception ex) {
                         emitter.completeWithError(ex);
@@ -187,5 +188,15 @@ public abstract class BaseAgent {
      */
     protected void cleanup() {
         // 子类可以重写此方法来清理资源
+    }
+
+    private void sendByChars(SseEmitter emitter, String text) throws Exception {
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < text.length(); i++) {
+            emitter.send(String.valueOf(text.charAt(i)));
+            Thread.sleep(STREAM_CHAR_DELAY_MS);
+        }
     }
 }

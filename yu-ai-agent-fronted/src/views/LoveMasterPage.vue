@@ -109,10 +109,12 @@ onBeforeUnmount(() => {
       <button @click="router.push('/')">返回首页</button>
     </div>
     <ChatPanel
-      title="AI 恋爱大师"
+      title="心语伴"
+      icon="/icons/heart-chat.png"
       :chat-id="chatId"
       :messages="messages"
       :loading="loading"
+      theme="love"
       @send="sendMessage"
     />
   </div>

@@ -24,11 +24,86 @@ body {
   gap: 18px;
   padding: 24px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-page h1,
+.home-page p,
+.home-card-grid {
+  position: relative;
+  z-index: 1;
+}
+
+.home-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.home-particle {
+  position: absolute;
+  bottom: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(214, 236, 255, 0.4) 60%, rgba(214, 236, 255, 0) 100%);
+  animation-name: homeParticleFloat;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
 }
 
 .home-actions {
   display: flex;
   gap: 16px;
+}
+
+.home-card-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px;
+  border-radius: 16px;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-card:hover {
+  transform: translateY(-2px);
+}
+
+.home-card-icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.home-card-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.home-card-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.home-card-love {
+  background: linear-gradient(135deg, #ff85ca 0%, #ff5ca8 100%);
+  box-shadow: 0 8px 20px rgba(255, 92, 168, 0.28);
+}
+
+.home-card-cyber {
+  background: linear-gradient(135deg, #0b2742 0%, #174f7f 45%, #00d2ff 100%);
+  box-shadow: 0 8px 20px rgba(0, 210, 255, 0.32);
 }
 
 button {
@@ -60,6 +135,32 @@ button:disabled {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.love-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.love-heart {
+  position: absolute;
+  bottom: -28px;
+  color: rgba(255, 92, 168, 0.42);
+  animation-name: randomHeartFloat;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.chat-header,
+.message-list,
+.input-panel {
+  position: relative;
+  z-index: 1;
 }
 
 .chat-header {
@@ -71,6 +172,20 @@ button:disabled {
 
 .chat-header h2 {
   margin: 0 0 4px;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-title-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
 }
 
 .chat-header p {
@@ -132,4 +247,242 @@ button:disabled {
   border-radius: 8px;
   padding: 10px;
   font-size: 14px;
+}
+
+.theme-love {
+  background: linear-gradient(180deg, #fff4fb 0%, #ffeef7 100%);
+}
+
+.theme-love::after {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  right: -110px;
+  top: -150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 137, 195, 0.4) 0%, rgba(255, 137, 195, 0) 68%);
+  pointer-events: none;
+  animation: loveGlow 5.5s ease-in-out infinite;
+}
+
+.theme-love .chat-header {
+  background: #fff9fd;
+  border: 1px solid #ffd6eb;
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.14);
+}
+
+.theme-love .message-list {
+  background: #fff9fd;
+  border: 1px solid #ffd6eb;
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.1);
+}
+
+.theme-love .message-ai .message-bubble {
+  background: #ffe3f3;
+  color: #6b214f;
+}
+
+.theme-love .message-user .message-bubble {
+  background: linear-gradient(135deg, #ff79c6 0%, #ff5ca8 100%);
+}
+
+.theme-love .input-panel {
+  background: #fff9fd;
+  border: 1px solid #ffd6eb;
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.1);
+}
+
+.theme-love .input-panel input {
+  border-color: #f9a8d4;
+}
+
+.theme-love .input-panel button {
+  background: linear-gradient(135deg, #ff79c6 0%, #ff5ca8 100%);
+}
+
+.theme-cyber {
+  background: radial-gradient(circle at top left, #18243f 0%, #0b1020 45%, #05070f 100%);
+}
+
+.theme-cyber::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(110, 240, 255, 0.08) 0px,
+    rgba(110, 240, 255, 0.08) 1px,
+    transparent 2px,
+    transparent 6px
+  );
+  opacity: 0.18;
+  pointer-events: none;
+  animation: scanlineMove 8s linear infinite;
+}
+
+.theme-cyber::after {
+  content: "";
+  position: absolute;
+  inset: -30% -15%;
+  background: radial-gradient(
+    circle at var(--mx, 50%) var(--my, 50%),
+    rgba(0, 229, 255, 0.22) 0%,
+    rgba(0, 229, 255, 0) 62%
+  );
+  pointer-events: none;
+  transition: background-position 140ms ease-out;
+  animation: neonBreath 3.2s ease-in-out infinite;
+}
+
+.theme-cyber .chat-header {
+  background: rgba(8, 16, 35, 0.9);
+  color: #d8f7ff;
+  border: 1px solid #1dc3df;
+  box-shadow: 0 0 14px rgba(29, 195, 223, 0.35);
+  animation: neonPulse 2.8s ease-in-out infinite;
+}
+
+.theme-cyber .chat-header p {
+  color: #66e6ff;
+}
+
+.theme-cyber .message-list {
+  background: rgba(7, 14, 30, 0.92);
+  border: 1px solid #1dc3df;
+  box-shadow: inset 0 0 20px rgba(29, 195, 223, 0.15);
+}
+
+.theme-cyber .message-ai .message-bubble {
+  background: #152b47;
+  border: 1px solid #66e6ff;
+  color: #bff6ff;
+}
+
+.theme-cyber .message-thinking .message-bubble {
+  background: rgba(38, 48, 68, 0.55);
+  border: 1px dashed rgba(163, 172, 190, 0.38);
+  color: #9aa4b7;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.theme-cyber .message-final .message-bubble {
+  background: #152b47;
+  border: 1px solid #66e6ff;
+  color: #d7f8ff;
+  font-size: 14px;
+}
+
+.theme-cyber .message-user .message-bubble {
+  background: linear-gradient(135deg, #7b3ff2 0%, #00e5ff 100%);
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.45);
+  animation: neonPulse 2.8s ease-in-out infinite;
+}
+
+.theme-cyber .input-panel {
+  background: rgba(7, 14, 30, 0.92);
+  border: 1px solid #1dc3df;
+  box-shadow: 0 0 14px rgba(29, 195, 223, 0.25);
+}
+
+.theme-cyber .input-panel input {
+  background: #0b1830;
+  color: #d8f7ff;
+  border-color: #1dc3df;
+}
+
+.theme-cyber .input-panel input::placeholder {
+  color: #7bbfcd;
+}
+
+.theme-cyber .input-panel button {
+  background: linear-gradient(135deg, #7b3ff2 0%, #00d4ff 100%);
+  box-shadow: 0 0 10px rgba(123, 63, 242, 0.55);
+  animation: neonPulse 2.8s ease-in-out infinite;
+}
+
+@keyframes randomHeartFloat {
+  0%,
+  20% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.52;
+  }
+  80% {
+    opacity: 0.42;
+  }
+  100% {
+    transform: translateY(-440px) translateX(12px) scale(1.08);
+    opacity: 0;
+  }
+}
+
+@keyframes loveGlow {
+  0%,
+  100% {
+    transform: scale(0.94);
+    opacity: 0.46;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.65;
+  }
+}
+
+@keyframes scanlineMove {
+  0% {
+    transform: translateY(-10%);
+  }
+  100% {
+    transform: translateY(10%);
+  }
+}
+
+@keyframes neonBreath {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.42;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes neonPulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(0, 229, 255, 0.1));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.55));
+  }
+}
+
+@keyframes homeParticleFloat {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.9);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.55;
+  }
+  70% {
+    transform: translateY(-56vh) translateX(10px) scale(1.15);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(-98vh) translateX(-10px) scale(1.3);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .home-card-grid {
+    grid-template-columns: 1fr;
+  }
 }
