@@ -66,6 +66,7 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.38</version>
         </dependency>
+
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
@@ -123,10 +124,10 @@
             <version>${spring-ai.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-jdbc</artifactId>-->
+<!--        </dependency>-->
 <!--     自动整合向量存储-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.ai</groupId>-->
@@ -135,27 +136,27 @@
 <!--        </dependency>-->
 
 
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-pgvector-store</artifactId>
-            <version>${spring-ai.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-pgvector-store</artifactId>-->
+<!--            <version>${spring-ai.version}</version>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-jdbc</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.postgresql</groupId>-->
+<!--            <artifactId>postgresql</artifactId>-->
+<!--            <scope>runtime</scope>-->
+<!--        </dependency>-->
 
-        <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-pgvector-store</artifactId>
-            <version>1.0.0-M6</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.ai</groupId>-->
+<!--            <artifactId>spring-ai-pgvector-store</artifactId>-->
+<!--            <version>1.0.0-M6</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -186,11 +187,11 @@
         </dependency>
 
 
-        <!-- MCP Server - 修改：使用正确的坐标 -->
+        <!-- MCP Server -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-mcp-server-spring-boot-starter</artifactId>
-            <version>${spring-ai.version}</version>
+            <version>1.0.0-M6</version>
         </dependency>
     </dependencies>
 

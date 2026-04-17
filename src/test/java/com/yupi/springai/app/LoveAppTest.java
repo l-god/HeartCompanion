@@ -58,13 +58,13 @@ class LoveAppTest {
         testMessage("直接下载一张适合做手机壁纸的星空情侣图片为文件");
 
         // 测试终端操作：执行代码
-        //testMessage("执行 Python3 脚本来生成数据分析报告");
+        testMessage("执行 Python3 脚本来生成数据分析报告");
 
         // 测试文件操作：保存用户档案
-       // testMessage("保存我的恋爱档案为文件");
+        testMessage("保存我的恋爱档案为文件");
 
         // 测试 PDF 生成
-        //testMessage("生成一份‘七夕约会计划’PDF，包含餐厅预订、活动流程和礼物清单");
+        testMessage("生成一份‘七夕约会计划’PDF，包含餐厅预订、活动流程和礼物清单");
     }
 
     private void testMessage(String message) {
@@ -75,9 +75,17 @@ class LoveAppTest {
     @Test
     void doChatWithMcp() {
         String chatId = UUID.randomUUID().toString();
-
-        String message = "我现在重庆南岸区请你为我推荐附件的约会地点并且给我图片";
+       //测试百度地图sseMCP服务和图片搜索mcp
+        String message = "告诉我你现在可以用的mcp有哪些";
         String answer =  loveApp.doChatWithMcp(message, chatId);
+        Assertions.assertNotNull(answer);
+
     }
 
 }
+
+
+
+
+
+

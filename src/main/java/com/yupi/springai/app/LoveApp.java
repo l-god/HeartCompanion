@@ -20,6 +20,7 @@ import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -35,8 +36,8 @@ public class LoveApp {
     @Resource
     public  VectorStore LoveVectorStore;
     //pgvector向量数据库实现RAG知识库问答
-    @Resource
-    public  VectorStore pgVectorVectorStore;
+  // @Resource
+   // public  VectorStore pgVectorVectorStore;
 
     //查询重写
     @Resource
@@ -82,8 +83,19 @@ public class LoveApp {
         log.info("content: {}", content);
         return content;
     }
+    //支持流式调用
+    public Flux<String> doChatByStream(String message, String chatId) {
+        return chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                .stream()
+                .content();
+    }
 
-  //生成恋爱报告
+
+    //生成恋爱报告
     record LoveReport(String title, List<String> suggestions) { }
 
     public LoveReport doChatWithReport(String message, String chatId) {
@@ -144,7 +156,7 @@ public class LoveApp {
         log.info("content: {}", content);
         return content;
     }
-    //利用mcp搞得地图服务,搞得地图api炸了，现在配置的是代码解释器
+    //利用mcp搞得地图服务,搞得地图api炸了，现在配置的百度地图远程连接
     @Resource
     private ToolCallbackProvider toolCallbackProvider;
 
@@ -163,7 +175,6 @@ public class LoveApp {
         log.info("content: {}", content);
         return content;
     }
-
 
 
 }
