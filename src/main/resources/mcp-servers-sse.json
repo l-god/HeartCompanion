@@ -6,18 +6,7 @@
       "headers": {
         "Authorization": "Bearer sk-80326a6dd48f443b83e4461950ca4db5"
       }
-    },
-    "yu-image-search-mcp-server": {
-      "command": "java",
-      "args": [
-        "-Dspring.ai.mcp.server.stdio=true",
-        "-Dspring.main.web-application-type=none",
-        "-Dlogging.pattern.console=",
-        "-jar",
-        "yu-image-search-mcp-server/target/yu-image-search-mcp-server-0.0.1-SNAPSHOT.jar"
-      ]
     }
-
       }
 
   }

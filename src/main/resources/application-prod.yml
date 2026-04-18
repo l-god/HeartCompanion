@@ -1,8 +1,14 @@
 spring:
   application:
-   name: springAI
+    name: springAI
 #  profiles:
 #    active: local
+  ai:
+    dashscope:
+      api-key: "sk-80326a6dd48f443b83e4461950ca4db5"
+      chat:
+        options:
+          model: qwen-max
   logging:
     level:
       org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
@@ -28,6 +34,7 @@ server:
     context-path: /api
 search-api:
   api-key: xpQ7GQA3r8mDfaztiG1hQCpQ
+
 
 
 

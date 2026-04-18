@@ -26,8 +26,8 @@ const manusModes = [
   { key: "report", label: "报告生成" },
 ];
 let lineBuffer = "";
-let thinkingMessageRef = null;
-let finalMessageRef = null;
+let currentThinkingMessage = null;  // 当前思考消息（用于累积）
+let currentFinalMessage = null;      // 当前最终结果消息
 
 function createChatId() {
   return `manus-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -42,8 +42,8 @@ function closeConnection() {
 
 function resetStreamState() {
   lineBuffer = "";
-  thinkingMessageRef = null;
-  finalMessageRef = null;
+  currentThinkingMessage = null;
+  currentFinalMessage = null;
 }
 
 function appendUserMessage(content) {
@@ -60,23 +60,35 @@ function appendAiMessage(kind, content = "") {
     role: "ai",
     kind,
     content,
+    thinkingSteps: [],  // 存储思考步骤
+    finalResult: "",     // 存储最终结果
   };
   messages.value.push(aiMessage);
   return aiMessage;
 }
 
-function appendThinking(text) {
-  if (!thinkingMessageRef) {
-    thinkingMessageRef = appendAiMessage("thinking");
+// 添加思考步骤（显示为灰色小字）
+function addThinkingStep(stepContent) {
+  // 如果没有当前思考消息，创建一个新的
+  if (!currentThinkingMessage) {
+    currentThinkingMessage = appendAiMessage("thinking");
+    currentThinkingMessage.thinkingSteps = [];
   }
-  thinkingMessageRef.content += `${text}\n`;
+  // 添加思考步骤
+  currentThinkingMessage.thinkingSteps.push(stepContent);
+  // 同时更新显示内容（兼容旧的显示方式）
+  currentThinkingMessage.content += `💭 ${stepContent}\n`;
 }
 
-function appendFinal(text) {
-  if (!finalMessageRef) {
-    finalMessageRef = appendAiMessage("final");
+// 添加最终结果
+function setFinalResult(resultContent) {
+  // 如果没有当前最终消息，创建一个
+  if (!currentFinalMessage) {
+    currentFinalMessage = appendAiMessage("final");
   }
-  finalMessageRef.content += `${text}\n`;
+  // 设置最终结果
+  currentFinalMessage.finalResult = resultContent;
+  currentFinalMessage.content = resultContent;
 }
 
 function handleStreamLine(line) {
@@ -84,15 +96,35 @@ function handleStreamLine(line) {
   if (!cleanLine) {
     return;
   }
+
+  // 处理 THINK: 开头的内容（思考过程）
   if (cleanLine.startsWith("THINK:")) {
-    appendThinking(cleanLine.slice(6).trim());
+    const thinkContent = cleanLine.slice(6).trim();
+    if (thinkContent) {
+      addThinkingStep(thinkContent);
+    }
     return;
   }
+
+  // 处理 FINAL: 开头的内容（最终结果）
   if (cleanLine.startsWith("FINAL:")) {
-    appendFinal(cleanLine.slice(6).trim());
+    const finalContent = cleanLine.slice(6).trim();
+    if (finalContent) {
+      setFinalResult(finalContent);
+    }
     return;
   }
-  appendFinal(cleanLine);
+
+  // 普通内容也作为最终结果处理
+  if (cleanLine) {
+    // 如果已经有最终消息，追加内容；否则创建新的
+    if (currentFinalMessage) {
+      currentFinalMessage.finalResult += `\n${cleanLine}`;
+      currentFinalMessage.content += `\n${cleanLine}`;
+    } else {
+      setFinalResult(cleanLine);
+    }
+  }
 }
 
 function sendMessage(message) {
@@ -133,8 +165,11 @@ function sendByAgentMode(message) {
       handleStreamLine(lineBuffer);
       lineBuffer = "";
     }
-    if (!thinkingMessageRef && !finalMessageRef) {
-      appendAiMessage("final", "连接中断，请稍后重试。");
+    // 如果没有任何消息，显示错误提示
+    if (!currentThinkingMessage && !currentFinalMessage) {
+      const errorMsg = appendAiMessage("final");
+      errorMsg.finalResult = "连接中断，请稍后重试。";
+      errorMsg.content = "连接中断，请稍后重试。";
     }
     loading.value = false;
     resetStreamState();
@@ -147,8 +182,8 @@ function formatReport(reportData) {
   }
   const title = reportData.title || "报告";
   const suggestions = Array.isArray(reportData.suggestions)
-    ? reportData.suggestions
-    : [];
+      ? reportData.suggestions
+      : [];
   const lines = suggestions.map((item, index) => `${index + 1}. ${item}`);
   return `${title}\n\n${lines.join("\n")}`;
 }
@@ -162,22 +197,22 @@ async function sendBySyncMode(message) {
     let result;
     if (currentMode.value === "sync") {
       result = await chatWithManusSync(message, chatId.value);
-      appendAiMessage("final", result.data || "暂无响应");
+      setFinalResult(result.data || "暂无响应");
     } else if (currentMode.value === "rag") {
       result = await chatWithManusRag(message, chatId.value);
-      appendAiMessage("final", result.data || "暂无响应");
+      setFinalResult(result.data || "暂无响应");
     } else if (currentMode.value === "tools") {
       result = await chatWithManusTools(message, chatId.value);
-      appendAiMessage("final", result.data || "暂无响应");
+      setFinalResult(result.data || "暂无响应");
     } else if (currentMode.value === "mcp") {
       result = await chatWithManusMcp(message, chatId.value);
-      appendAiMessage("final", result.data || "暂无响应");
+      setFinalResult(result.data || "暂无响应");
     } else if (currentMode.value === "report") {
       result = await chatWithManusReport(message, chatId.value);
-      appendAiMessage("final", formatReport(result.data));
+      setFinalResult(formatReport(result.data));
     }
   } catch (error) {
-    appendAiMessage("final", "请求失败，请检查后端服务是否已启动。");
+    setFinalResult("请求失败，请检查后端服务是否已启动。");
   } finally {
     loading.value = false;
   }
@@ -202,22 +237,123 @@ onBeforeUnmount(() => {
     </div>
     <div class="mode-switch-bar mode-switch-bar-cyber">
       <button
-        v-for="mode in manusModes"
-        :key="mode.key"
-        class="mode-switch-btn mode-switch-btn-cyber"
-        :class="{ 'mode-switch-btn-active': currentMode === mode.key }"
-        @click="switchMode(mode.key)"
+          v-for="mode in manusModes"
+          :key="mode.key"
+          class="mode-switch-btn mode-switch-btn-cyber"
+          :class="{ 'mode-switch-btn-active': currentMode === mode.key }"
+          @click="switchMode(mode.key)"
       >
         {{ mode.label }}
       </button>
     </div>
     <ChatPanel
-      title="AI 超级智能体"
-      icon="/icons/super-agent.png"
-      :messages="messages"
-      :loading="loading"
-      theme="cyber"
-      @send="sendMessage"
-    />
+        title="AI 超级智能体"
+        icon="/icons/super-agent.png"
+        :messages="messages"
+        :loading="loading"
+        theme="cyber"
+        @send="sendMessage"
+    >
+      <!-- 自定义消息渲染模板 -->
+      <template #message="{ message }">
+        <div v-if="message.role === 'ai'" class="ai-message-custom">
+          <!-- 思考过程：灰色小字 -->
+          <div v-if="message.thinkingSteps && message.thinkingSteps.length > 0" class="thinking-steps">
+            <div class="thinking-label">💭 思考过程</div>
+            <div v-for="(step, idx) in message.thinkingSteps" :key="idx" class="thinking-step">
+              {{ step }}
+            </div>
+          </div>
+          <!-- 最终结果：正常字体 -->
+          <div v-if="message.finalResult" class="final-result">
+            <div class="final-label">📝 回答</div>
+            <div class="final-content">{{ message.finalResult }}</div>
+          </div>
+          <!-- 兼容旧格式 -->
+          <div v-else-if="message.content" class="final-content">
+            {{ message.content }}
+          </div>
+        </div>
+        <div v-else class="user-message">
+          {{ message.content }}
+        </div>
+      </template>
+    </ChatPanel>
   </div>
 </template>
+
+<style scoped>
+/* 思考过程样式 - 灰色小字 */
+.thinking-steps {
+  background: #f5f5f5;
+  border-left: 3px solid #888;
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+}
+
+.thinking-label {
+  font-size: 11px;
+  color: #999;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.thinking-step {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin: 4px 0;
+  padding-left: 12px;
+  position: relative;
+}
+
+.thinking-step::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #999;
+}
+
+/* 最终结果样式 - 正常字体 */
+.final-result {
+  background: white;
+  padding: 12px 16px;
+  margin: 8px 0;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.final-label {
+  font-size: 12px;
+  color: #667eea;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.final-content {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* 用户消息样式 */
+.user-message {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 18px;
+  max-width: 70%;
+  margin-left: auto;
+}
+
+/* AI 消息容器 */
+.ai-message-custom {
+  max-width: 85%;
+  margin-right: auto;
+}
+</style>

@@ -98,7 +98,7 @@ public abstract class BaseAgent {
      */
     public SseEmitter runStream(String userPrompt) {
         // 创建SseEmitter，设置较长的超时时间
-        SseEmitter emitter = new SseEmitter(100000L); // 5分钟超时
+        SseEmitter emitter = new SseEmitter(500000L); // 5分钟超时
 
         // 使用线程异步处理，避免阻塞主线程
         CompletableFuture.runAsync(() -> {
